@@ -64,7 +64,7 @@ function AnatomicalHeartModel() {
 }
 useGLTF.preload('/models/anatomical_heart_-_codominance.glb')
 
-function VesselTube({ v, selected, onSelect, prob }: { v: Vessel; selected: boolean; onSelect: (id: ID) => void; prob?: number }) {
+function VesselTube({ v, selected, onSelect }: { v: Vessel; selected: boolean; onSelect: (id: ID) => void }) {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(v.points.map(p => new THREE.Vector3(...p))), [v])
   const color = vesselColors[v.id]
   return <mesh onClick={e => { e.stopPropagation(); onSelect(v.id) }} onPointerOver={() => { document.body.style.cursor = 'pointer' }} onPointerOut={() => { document.body.style.cursor = 'default' }} castShadow>
@@ -95,7 +95,7 @@ export default function HeartScene({ selected, onSelect, probabilities = {}, foc
       <Suspense fallback={<Html center><span style={{fontSize:12,color:'#52657a'}}>Preparing 3D anatomy…</span></Html>}>
         {focus ? <ArteryInterior prob={probabilities[selected]}/> : <group rotation={[.02,-.16,0]}>
           <AnatomicalHeartModel/>
-          {vessels.map(v => <VesselTube key={v.key} v={v} selected={selected===v.id} onSelect={onSelect} prob={probabilities[v.id]}/>)}
+          {vessels.map(v => <VesselTube key={v.key} v={v} selected={selected===v.id} onSelect={onSelect}/>)}
           <Html position={vesselAnchors[selected]} center distanceFactor={5} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
             <div className="vessel-score-callout" style={{ '--vessel-color': vesselColors[selected] } as React.CSSProperties}>
               <span>{selected}</span>
