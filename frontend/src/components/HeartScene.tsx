@@ -29,8 +29,10 @@ function AnatomicalHeartModel() {
     const center = bounds.getCenter(new THREE.Vector3())
     const size = bounds.getSize(new THREE.Vector3())
     const maxDim = Math.max(size.x, size.y, size.z) || 1
+    const wrapper = new THREE.Group()
     clone.position.sub(center)
-    clone.scale.setScalar(1.72 / maxDim)
+    wrapper.add(clone)
+    wrapper.scale.setScalar(1.72 / maxDim)
     clone.traverse((obj) => {
       if (obj instanceof THREE.Mesh) {
         obj.castShadow = true
@@ -40,7 +42,7 @@ function AnatomicalHeartModel() {
           : obj.material.clone()
       }
     })
-    return clone
+    return wrapper
   }, [scene])
   return <primitive object={prepared} />
 }
