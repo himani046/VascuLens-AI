@@ -96,17 +96,16 @@ export default function HeartScene({ selected, onSelect, probabilities = {}, foc
         {focus ? <ArteryInterior prob={probabilities[selected]}/> : <group rotation={[.02,-.16,0]}>
           <AnatomicalHeartModel/>
           {vessels.map(v => <VesselTube key={v.key} v={v} selected={selected===v.id} onSelect={onSelect}/>)}
-          <Html position={vesselAnchors[selected]} center distanceFactor={5} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
-            <div className="vessel-score-callout" style={{ '--vessel-color': vesselColors[selected] } as React.CSSProperties}>
-              <span>{selected}</span>
-              <strong>{probabilities[selected] === undefined ? 'No score yet' : (probabilities[selected]! * 100).toFixed(1) + '%'}</strong>
-              <small>{probabilities[selected] === undefined ? 'Run patient prediction' : 'model probability'}</small>
-            </div>
-          </Html>
+
         </group>}
       </Suspense>
       <OrbitControls enablePan enableDamping dampingFactor={.08} rotateSpeed={.7} zoomSpeed={.85} minDistance={focus?1.5:1.7} maxDistance={focus?5:5.5}/>
     </Canvas>
+    <div className="vessel-score-callout" style={{ '--vessel-color': vesselColors[selected] } as React.CSSProperties} aria-live="polite">
+      <span>{selected}</span>
+      <strong>{probabilities[selected] === undefined ? 'No score yet' : (probabilities[selected]! * 100).toFixed(1) + '%'}</strong>
+      <small>{probabilities[selected] === undefined ? 'Run patient prediction' : 'model probability'}</small>
+    </div>
     <div className="scene-legend" aria-label="Coronary vessel color legend">
       <span><i style={{background:vesselColors.LAD}}/> LAD</span>
       <span><i style={{background:vesselColors.LCX}}/> LCX</span>
