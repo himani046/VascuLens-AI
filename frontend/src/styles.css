@@ -90,3 +90,13 @@ button.cv-input-kpi:hover{transform:translateY(-2px);border-color:#91d1cc}
 .cv-input-safety{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border:1px solid #d8e9f8;background:#edf6ff;border-radius:9px;color:#3977aa;font-size:10px;line-height:1.6}
 @media(max-width:900px){.cv-input-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.cv-input-hero{align-items:flex-start;flex-direction:column}.cv-input-hero-actions{width:100%;min-width:0}.cv-input-hero-actions .cv-primary{flex:1}}
 @media(max-width:560px){.cv-input-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cv-input-hero,.cv-input-form-card{padding:16px}.cv-input-kpi{padding:12px}.cv-input-kpi b{font-size:21px}.cv-input-form-footer{align-items:stretch;flex-direction:column}.cv-input-form-footer .cv-primary{width:100%}.cv-input-fields{grid-template-columns:1fr}}
+
+/* Vessel selection callout and fixed anatomical color key */
+.scene-legend{position:absolute;right:10px;top:10px;display:flex;gap:7px;align-items:center;padding:8px 10px;border:1px solid #dce8f1;border-radius:8px;background:#ffffffed;box-shadow:0 3px 10px #173c5b10}
+.scene-legend span{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:800;color:#425e75}
+.scene-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 2px #fff}
+.vessel-score-callout{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:102px;padding:8px 10px;border:1px solid color-mix(in srgb,var(--vessel-color) 45%,white);border-left:3px solid var(--vessel-color);border-radius:9px;background:#ffffffef;box-shadow:0 5px 16px #173c5b22;color:#23435b;white-space:nowrap;backdrop-filter:blur(5px)}
+.vessel-score-callout span{font-size:9px;font-weight:900;letter-spacing:.6px;color:var(--vessel-color)}
+.vessel-score-callout strong{font-size:19px;line-height:1.1;letter-spacing:-.4px;color:#143a56}
+.vessel-score-callout small{font-size:8px;color:#7890a3}
+@media(max-width:560px){.scene-legend{top:auto;right:8px;bottom:44px;gap:6px;padding:7px}.scene-legend span{font-size:8px}.vessel-score-callout{min-width:86px;padding:7px 8px}.vessel-score-callout strong{font-size:16px}}
