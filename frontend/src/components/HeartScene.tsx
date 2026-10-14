@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Html } from '@react-three/drei'
+import { OrbitControls, Html, useGLTF } from '@react-three/drei'
 import { Suspense, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
@@ -19,52 +19,32 @@ const vessels: Vessel[] = [
 ]
 const riskColor = (p?: number) => p === undefined ? '#b85e69' : p >= .65 ? '#ed4857' : p >= .35 ? '#e6a23c' : '#19a783'
 
-function HeartSurface({ enabled }: { enabled: boolean }) {
-  const ref = useRef<THREE.Mesh>(null)
-  const geometry = useMemo(() => {
-    const geo = new THREE.SphereGeometry(1, 64, 48)
-    const pos = geo.attributes.position as THREE.BufferAttribute
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i)
-      const top = Math.max(0, y)
-      const pinch = 1 - .28 * Math.exp(-Math.pow((y - .52) / .20, 2))
-      const taper = .72 + .28 * ((y + 1) / 2)
-      pos.setXYZ(i, x * .57 * pinch * taper, y * .76, z * .40 * (0.92 + .08 * top))
-    }
-    geo.computeVertexNormals()
-    return geo
-  }, [])
-  useFrame(({ clock }) => {
-    if (ref.current && enabled) {
-      const s = 1 + Math.sin(clock.elapsedTime * 3.6) * .012
-      ref.current.scale.set(s, s, s)
-    }
-  })
-  return <mesh ref={ref} geometry={geometry} rotation={[0, 0, -.16]} castShadow receiveShadow>
-    <meshPhysicalMaterial color="#a94e60" roughness={.42} metalness={.02} clearcoat={.22} clearcoatRoughness={.38}/>
-  </mesh>
-}
 
-function GreatVessels() {
-  return <group>
-    <mesh position={[-.03,.73,-.03]} rotation={[0,0,-.22]} castShadow>
-      <cylinderGeometry args={[.105,.13,.50,32,1]}/>
-      <meshPhysicalMaterial color="#c95b68" roughness={.3} clearcoat={.3}/>
-    </mesh>
-    <mesh position={[.12,.82,-.02]} rotation={[0,0,-.75]} castShadow>
-      <torusGeometry args={[.22,.09,20,48,Math.PI*1.12]}/>
-      <meshPhysicalMaterial color="#bd5260" roughness={.32} clearcoat={.25}/>
-    </mesh>
-    <mesh position={[.20,.68,-.035]} rotation={[0,0,-.42]}>
-      <cylinderGeometry args={[.075,.09,.34,24]}/>
-      <meshStandardMaterial color="#d06a73" roughness={.34}/>
-    </mesh>
-    <mesh position={[-.13,.65,-.06]} rotation={[0,0,.36]}>
-      <cylinderGeometry args={[.065,.085,.34,24]}/>
-      <meshStandardMaterial color="#a84758" roughness={.36}/>
-    </mesh>
-  </group>
+function AnatomicalHeartModel() {
+  const { scene } = useGLTF('/models/anatomical_heart_-_codominance.glb')
+  const prepared = useMemo(() => {
+    const clone = scene.clone(true)
+    clone.updateMatrixWorld(true)
+    const bounds = new THREE.Box3().setFromObject(clone)
+    const center = bounds.getCenter(new THREE.Vector3())
+    const size = bounds.getSize(new THREE.Vector3())
+    const maxDim = Math.max(size.x, size.y, size.z) || 1
+    clone.position.sub(center)
+    clone.scale.setScalar(1.72 / maxDim)
+    clone.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.castShadow = true
+        obj.receiveShadow = true
+        obj.material = Array.isArray(obj.material)
+          ? obj.material.map((m) => m.clone())
+          : obj.material.clone()
+      }
+    })
+    return clone
+  }, [scene])
+  return <primitive object={prepared} />
 }
+useGLTF.preload('/models/anatomical_heart_-_codominance.glb')
 
 function VesselTube({ v, selected, onSelect, prob }: { v: Vessel; selected: boolean; onSelect: (id: ID) => void; prob?: number }) {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(v.points.map(p => new THREE.Vector3(...p))), [v])
@@ -108,15 +88,13 @@ export default function HeartScene({ selected, onSelect, probabilities = {}, foc
       <pointLight position={[-2,-1,3]} intensity={.55} color="#ffd4ce"/>
       <Suspense fallback={<Html center><span style={{fontSize:12,color:'#52657a'}}>Preparing 3D anatomy…</span></Html>}>
         {focus ? <ArteryInterior prob={probabilities[selected]}/> : <group rotation={[.02,-.16,0]}>
-          <HeartSurface enabled={beating}/>
-          <GreatVessels/>
-          <VeinNetwork/>
+          <AnatomicalHeartModel/>
           {vessels.map(v => <VesselTube key={v.key} v={v} selected={selected===v.id} onSelect={onSelect} prob={probabilities[v.id]}/>)}
         </group>}
       </Suspense>
       <OrbitControls enablePan enableDamping dampingFactor={.08} rotateSpeed={.7} zoomSpeed={.85} minDistance={focus?1.5:1.7} maxDistance={focus?5:5.5}/>
     </Canvas>
-    <div className="scene-hint">Drag to rotate 360° · Scroll to zoom · Right-drag to pan</div>
+    <div className="scene-hint">Anatomical model · Drag to rotate · Scroll to zoom · Vessel overlays are illustrative</div>
     <div className="scene-selected">{focus ? 'Illustrative vessel cross-section — NOT CT-derived' : `${selected} · ${probabilities[selected] === undefined ? 'No patient prediction' : (probabilities[selected]! * 100).toFixed(1) + '% model score'}`}</div>
   </div>
 }
