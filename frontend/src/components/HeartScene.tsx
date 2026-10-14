@@ -1,6 +1,6 @@
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Html, useGLTF } from '@react-three/drei'
-import { Suspense, useMemo, useRef } from 'react'
+import { Suspense, useMemo } from 'react'
 import * as THREE from 'three'
 
 type ID = 'LAD' | 'LCX' | 'RCA'
@@ -57,18 +57,6 @@ function VesselTube({ v, selected, onSelect, prob }: { v: Vessel; selected: bool
   </mesh>
 }
 
-function VeinNetwork() {
-  const veins: [number, number, number][][] = [
-    [[-.22,.48,.35],[-.36,.28,.35],[-.43,.02,.26],[-.30,-.25,.20]],
-    [[.26,.38,.34],[.40,.18,.29],[.35,-.06,.24],[.18,-.30,.18]],
-    [[-.08,.18,.40],[-.20,.02,.34],[-.18,-.20,.25]],
-  ]
-  return <group>{veins.map((points, i) => {
-    const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)))
-    return <mesh key={i}><tubeGeometry args={[curve, 36, .012, 8, false]}/><meshStandardMaterial color="#567fbd" roughness={.3} metalness={.02}/></mesh>
-  })}</group>
-}
-
 function ArteryInterior({ prob }: { prob?: number }) {
   const narrowing = prob === undefined ? .12 : Math.max(.06, Math.min(.72, prob * .7))
   return <group rotation={[0,0,Math.PI/2]}>
@@ -81,7 +69,7 @@ function ArteryInterior({ prob }: { prob?: number }) {
 }
 
 export default function HeartScene({ selected, onSelect, probabilities = {}, focus = false, beating = true }: { selected: ID; onSelect: (id: ID) => void; probabilities?: Partial<Record<ID, number>>; focus?: boolean; beating?: boolean }) {
-  return <div className="heart-canvas">
+  return <div className="heart-canvas" data-beating={beating}>
     <Canvas camera={{ position: [0, .02, 3.15], fov: 40 }} dpr={[1, 1.35]} gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }} shadows>
       <color attach="background" args={['#f2f6fa']}/>
       <ambientLight intensity={1.15}/>
