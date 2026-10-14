@@ -100,3 +100,34 @@ button.cv-input-kpi:hover{transform:translateY(-2px);border-color:#91d1cc}
 .vessel-score-callout strong{font-size:19px;line-height:1.1;letter-spacing:-.4px;color:#143a56}
 .vessel-score-callout small{font-size:8px;color:#7890a3}
 @media(max-width:560px){.scene-legend{top:auto;right:8px;bottom:44px;gap:6px;padding:7px}.scene-legend span{font-size:8px}.vessel-score-callout{min-width:86px;padding:7px 8px}.vessel-score-callout strong{font-size:16px}}
+
+/* Clinical palette refresh: white surfaces, teal/blue medical accents */
+:root{--clinical-ink:#163b52;--clinical-teal:#087f8c;--clinical-blue:#2b6cb0;--clinical-mint:#eaf7f5;--clinical-line:#d8e8ec}
+.cv-shell{background:#f5f9fb;color:var(--clinical-ink)}
+.cv-topbar{background:#fff;border-bottom:1px solid #dbe8ec;box-shadow:0 3px 14px #183e5210}
+.cv-brand-icon{background:#e5f5f3;color:#087f8c}
+.cv-nav button.active{background:#e5f5f3;color:#087f8c;box-shadow:inset 0 0 0 1px #c5e8e4}
+.cv-eyebrow{color:#087f8c}
+.cv-heading h1{color:#153d55}
+.cv-card{border-color:#dce9ed;box-shadow:0 5px 18px #1b53690a}
+.cv-heart-card{border-top:3px solid #6bb9c0}
+.cv-input-card{border-top:3px solid #8bb6e8}
+.cv-results-card{border-top:3px solid #82c9b4}
+.cv-input-hero{border-top:3px solid #3b9da5;background:linear-gradient(115deg,#fff 0%,#f0faf9 100%)}
+.cv-input-form-card{border-top:3px solid #8bb6e8}
+.cv-input-kpi{background:#fff}
+.cv-input-kpi b{color:#164b62}
+.cv-primary{background:linear-gradient(100deg,#087f8c,#1769aa)}
+.cv-view-toolbar{background:#edf5f7}
+.cv-view-toolbar button.selected{color:#087f8c;box-shadow:0 1px 5px #174e6018}
+.cv-vessel-tabs button.selected{background:#edf9f7;border-color:#8bcfc6}
+.cv-selected-detail{background:#f3faf9;border-color:#d3ebe6}
+.cv-disclaimer{background:#fffaf0;border-color:#f0e1bd}
+.heart-canvas{background:#f1f7fa}
+.cv-input-fields .mini-field{background:#fbfdfe;border-color:#e0ebee}
+.cv-input-fields .mini-field:focus-within{border-color:#83c4c7;box-shadow:0 0 0 3px #dff4f1}
+.cv-input-fields .mini-field input{outline-color:#65b9bf}
+.cv-input-safety{background:#edf7fb;border-color:#d2e8f1;color:#2d6f91}
+.vessel-score-callout{position:absolute;right:10px;bottom:10px;z-index:2;max-width:180px;min-width:118px;padding:8px 11px;background:#fffffffa}
+.scene-legend{right:10px;top:10px}
+@media(max-width:560px){.vessel-score-callout{right:8px;bottom:8px;max-width:140px;min-width:95px}.vessel-score-callout strong{font-size:16px}}
