@@ -2,6 +2,7 @@
 from pathlib import Path
 from typing import Any
 import json
+import base64
 import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
@@ -17,29 +18,54 @@ class Patient(BaseModel):
     features: dict[str, Any] = Field(..., description='Clinical feature values matching /api/schema')
 
 def load_bundle():
+    """Load the trained bundle from backend/artifacts.
+
+    The model package is distributed separately because it is a binary artifact.
+    Put clinical.joblib from VascuLens_AI_Retrained_Models.zip in this directory.
+    """
     path = ROOT / 'artifacts' / 'clinical.joblib'
-    return joblib.load(path) if path.exists() else None
+    if not path.exists():
+        return None
+    try:
+        bundle = joblib.load(path)
+    except Exception as exc:
+        raise RuntimeError(f'Could not load clinical model bundle: {exc}') from exc
+    required = {'models', 'features', 'numeric', 'defaults', 'thresholds'}
+    missing = required - set(bundle)
+    if missing:
+        raise RuntimeError(f'Model bundle is missing required fields: {sorted(missing)}')
+    return bundle
 
 @app.get('/api/health')
 def health():
-    bundle = load_bundle()
-    return {'status': 'ok', 'project': 'VascuLens AI', 'clinical_model_ready': bundle is not None,
+    try:
+        bundle = load_bundle()
+        load_error = None
+    except RuntimeError as exc:
+        bundle, load_error = None, str(exc)
+    return {'status': 'ok', 'project': 'VascuLens AI', 'clinical_model_ready': bundle is not None, 'model_load_error': load_error,
             'targets_available': list(bundle['models']) if bundle else [], 'image_model_ready': False,
             'image_model_note': 'Image segmentation is a separate experimental pathway; no patient-specific lesion model is bundled.'}
 
 @app.get('/api/schema')
 def schema():
-    bundle = load_bundle()
+    try:
+        bundle = load_bundle()
+    except RuntimeError as exc:
+        return {'ready': False, 'features': [], 'message': str(exc)}
     if not bundle:
-        return {'ready': False, 'features': [], 'message': 'Train backend/train.py with the UCI extension dataset first.'}
+        return {'ready': False, 'features': [], 'message': 'Place clinical.joblib from VascuLens_AI_Retrained_Models.zip in backend/artifacts/.'}
     return {'ready': True, 'features': [{'name': name, 'default': bundle['defaults'][name],
             'type': 'number' if name in bundle['numeric'] else 'text'} for name in bundle['features']]}
 
 @app.post('/api/predict')
 def predict(patient: Patient):
-    bundle = load_bundle()
+    try:
+        bundle = load_bundle()
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc)) from exc
     if not bundle:
-        raise HTTPException(503, 'Clinical model unavailable. Train with the original UCI extension dataset first.')
+        raise HTTPException(503, 'Clinical model unavailable. Place clinical.joblib in backend/artifacts/.')
     missing = [name for name in bundle['features'] if name not in patient.features]
     if missing:
         raise HTTPException(422, {'missing_features': missing})
@@ -74,14 +100,14 @@ def predict(patient: Patient):
 def metrics():
     path = ROOT / 'artifacts' / 'metrics.json'
     if not path.exists():
-        raise HTTPException(503, 'No measured metrics available. Run backend/train.py with the original dataset first.')
+        raise HTTPException(503, 'No measured metrics available. Add the benchmark metrics.json to backend/artifacts/.')
     return json.loads(path.read_text())
 
 @app.get('/api/explanations/global')
 def global_explanations():
     path = ROOT / 'artifacts' / 'metrics.json'
     if not path.exists():
-        raise HTTPException(503, 'No feature importance available until the model is trained.')
+        raise HTTPException(503, 'No feature importance report available yet.')
     data = json.loads(path.read_text())
     return {'targets': {target: info.get('global_permutation_importance_top15', [])
                         for target, info in data.get('targets', {}).items() if isinstance(info, dict)},
