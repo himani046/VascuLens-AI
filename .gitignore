@@ -1,0 +1,14 @@
+node_modules/
+frontend/dist/
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+*.xlsx
+*.xls
+backend/data/
+backend/artifacts/*.joblib
+backend/artifacts/*.pkl
+backend/artifacts/metrics.json
