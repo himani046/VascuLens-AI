@@ -173,7 +173,8 @@ def main(path: str) -> None:
         raise RuntimeError('No targets were trained; verify dataset target columns and labels.')
     out = ROOT / 'artifacts'
     out.mkdir(parents=True, exist_ok=True)
-    joblib.dump({'models': models, 'features': feature_columns, 'defaults': defaults, 'thresholds': thresholds}, out / 'clinical.joblib')
+    numeric_features = X_all.select_dtypes(include=['number', 'bool']).columns.tolist()
+    joblib.dump({'models': models, 'features': feature_columns, 'numeric': numeric_features, 'defaults': defaults, 'thresholds': thresholds}, out / 'clinical.joblib')
     (out / 'metrics.json').write_text(json.dumps(output, indent=2, allow_nan=False))
     print(json.dumps(output, indent=2, allow_nan=False))
 
