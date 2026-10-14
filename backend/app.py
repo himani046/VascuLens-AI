@@ -1,6 +1,7 @@
 """FastAPI service for VascuLens AI research prototype."""
 from pathlib import Path
 from typing import Any
+import os
 import json
 import base64
 import joblib
@@ -11,8 +12,9 @@ from pydantic import BaseModel, Field
 
 ROOT = Path(__file__).resolve().parent
 app = FastAPI(title='VascuLens AI Research API', version='0.2.0', description='Research prototype; not a medical device.')
-app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:5173', 'http://127.0.0.1:5173'],
-                   allow_credentials=False, allow_methods=['GET', 'POST'], allow_headers=['*'])
+cors_origins = [origin.strip() for origin in os.getenv('VASCULENS_CORS_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173').split(',') if origin.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins,
+                   allow_credentials=False, allow_methods=['GET', 'POST', 'OPTIONS'], allow_headers=['*'])
 
 class Patient(BaseModel):
     features: dict[str, Any] = Field(..., description='Clinical feature values matching /api/schema')
