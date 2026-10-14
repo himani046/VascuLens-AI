@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Html, useGLTF } from '@react-three/drei'
 import { Suspense, useMemo } from 'react'
 import * as THREE from 'three'
+import type React from 'react'
 
 type ID = 'LAD' | 'LCX' | 'RCA'
 type Vessel = { key: string; id: ID; name: string; points: [number, number, number][]; branch?: boolean }
@@ -17,7 +18,12 @@ const vessels: Vessel[] = [
   { key: 'rca-marginal', id: 'RCA', name: 'Right marginal branch', branch: true, points: [[.46,.10,.25],[.39,-.08,.24],[.27,-.22,.19]] },
   { key: 'rca-pda', id: 'RCA', name: 'Posterior descending branch', branch: true, points: [[.31,-.24,.18],[.12,-.36,.22],[-.08,-.45,.18],[-.20,-.47,.12]] },
 ]
-const riskColor = (p?: number) => p === undefined ? '#b85e69' : p >= .65 ? '#ed4857' : p >= .35 ? '#e6a23c' : '#19a783'
+const vesselColors: Record<ID, string> = { LAD: '#f04452', LCX: '#16a6d8', RCA: '#17a673' }
+const vesselAnchors: Record<ID, [number, number, number]> = {
+  LAD: [.16, .22, .52],
+  LCX: [-.36, .36, .40],
+  RCA: [.49, .27, .34],
+}
 
 
 function AnatomicalHeartModel() {
@@ -60,10 +66,10 @@ useGLTF.preload('/models/anatomical_heart_-_codominance.glb')
 
 function VesselTube({ v, selected, onSelect, prob }: { v: Vessel; selected: boolean; onSelect: (id: ID) => void; prob?: number }) {
   const curve = useMemo(() => new THREE.CatmullRomCurve3(v.points.map(p => new THREE.Vector3(...p))), [v])
-  const color = riskColor(prob)
+  const color = vesselColors[v.id]
   return <mesh onClick={e => { e.stopPropagation(); onSelect(v.id) }} onPointerOver={() => { document.body.style.cursor = 'pointer' }} onPointerOut={() => { document.body.style.cursor = 'default' }} castShadow>
     <tubeGeometry args={[curve, 56, v.branch ? (selected ? .014 : .009) : (selected ? .027 : .019), 10, false]}/>
-    <meshPhysicalMaterial color={color} emissive={color} emissiveIntensity={selected ? .32 : .10} roughness={.27} metalness={.02} clearcoat={.45}/>
+    <meshPhysicalMaterial color={color} emissive={color} emissiveIntensity={selected ? .65 : .28} roughness={.27} metalness={.02} clearcoat={.45}/>
   </mesh>
 }
 
@@ -90,10 +96,22 @@ export default function HeartScene({ selected, onSelect, probabilities = {}, foc
         {focus ? <ArteryInterior prob={probabilities[selected]}/> : <group rotation={[.02,-.16,0]}>
           <AnatomicalHeartModel/>
           {vessels.map(v => <VesselTube key={v.key} v={v} selected={selected===v.id} onSelect={onSelect} prob={probabilities[v.id]}/>)}
+          <Html position={vesselAnchors[selected]} center distanceFactor={5} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
+            <div className="vessel-score-callout" style={{ '--vessel-color': vesselColors[selected] } as React.CSSProperties}>
+              <span>{selected}</span>
+              <strong>{probabilities[selected] === undefined ? 'No score yet' : (probabilities[selected]! * 100).toFixed(1) + '%'}</strong>
+              <small>{probabilities[selected] === undefined ? 'Run patient prediction' : 'model probability'}</small>
+            </div>
+          </Html>
         </group>}
       </Suspense>
       <OrbitControls enablePan enableDamping dampingFactor={.08} rotateSpeed={.7} zoomSpeed={.85} minDistance={focus?1.5:1.7} maxDistance={focus?5:5.5}/>
     </Canvas>
+    <div className="scene-legend" aria-label="Coronary vessel color legend">
+      <span><i style={{background:vesselColors.LAD}}/> LAD</span>
+      <span><i style={{background:vesselColors.LCX}}/> LCX</span>
+      <span><i style={{background:vesselColors.RCA}}/> RCA</span>
+    </div>
     <div className="scene-hint">Anatomical model · Drag to rotate · Scroll to zoom · Vessel overlays are illustrative</div>
     <div className="scene-selected">{focus ? 'Illustrative vessel cross-section — NOT CT-derived' : `${selected} · ${probabilities[selected] === undefined ? 'No patient prediction' : (probabilities[selected]! * 100).toFixed(1) + '% model score'}`}</div>
   </div>
