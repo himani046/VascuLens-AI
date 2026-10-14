@@ -37,9 +37,18 @@ function AnatomicalHeartModel() {
       if (obj instanceof THREE.Mesh) {
         obj.castShadow = true
         obj.receiveShadow = true
+        // The source GLB renders nearly black in this viewer; use a readable
+        // anatomical tissue material while retaining the original mesh geometry.
+        const materialForMesh = () => new THREE.MeshPhysicalMaterial({
+          color: '#c9828c',
+          roughness: 0.62,
+          metalness: 0,
+          clearcoat: 0.08,
+          side: THREE.DoubleSide,
+        })
         obj.material = Array.isArray(obj.material)
-          ? obj.material.map((m) => m.clone())
-          : obj.material.clone()
+          ? obj.material.map(() => materialForMesh())
+          : materialForMesh()
       }
     })
     return wrapper
@@ -72,9 +81,9 @@ export default function HeartScene({ selected, onSelect, probabilities = {}, foc
   return <div className="heart-canvas" data-beating={beating}>
     <Canvas camera={{ position: [0, .02, 3.15], fov: 40 }} dpr={[1, 1.35]} gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }} shadows>
       <color attach="background" args={['#f2f6fa']}/>
-      <ambientLight intensity={1.15}/>
-      <directionalLight position={[3,4,5]} intensity={2.2} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024}/>
-      <directionalLight position={[-3,1,-2]} intensity={.75} color="#9ac7df"/>
+      <ambientLight intensity={2.0}/>
+      <directionalLight position={[3,4,5]} intensity={3.0} castShadow shadow-mapSize-width={1024} shadow-mapSize-height={1024}/>
+      <directionalLight position={[-3,1,-2]} intensity={1.4} color="#d8e8f5"/>
       <pointLight position={[-2,-1,3]} intensity={.55} color="#ffd4ce"/>
       <Suspense fallback={<Html center><span style={{fontSize:12,color:'#52657a'}}>Preparing 3D anatomy…</span></Html>}>
         {focus ? <ArteryInterior prob={probabilities[selected]}/> : <group rotation={[.02,-.16,0]}>
