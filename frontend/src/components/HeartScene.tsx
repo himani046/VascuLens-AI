@@ -50,6 +50,7 @@ function AnatomicalHeartModel() {
         material.side = THREE.DoubleSide
         material.needsUpdate = true
       }
+      }
     })
     return wrapper
   }, [scene])
