@@ -131,3 +131,40 @@ button.cv-input-kpi:hover{transform:translateY(-2px);border-color:#91d1cc}
 .vessel-score-callout{position:absolute;right:10px;bottom:10px;z-index:2;max-width:180px;min-width:118px;padding:8px 11px;background:#fffffffa}
 .scene-legend{right:10px;top:10px}
 @media(max-width:560px){.vessel-score-callout{right:8px;bottom:8px;max-width:140px;min-width:95px}.vessel-score-callout strong{font-size:16px}}
+
+
+/* Compact vessel score badge: keep the anatomy unobstructed */
+.heart-canvas .vessel-score-callout{
+  position:absolute!important;
+  top:auto!important;
+  left:auto!important;
+  right:12px!important;
+  bottom:12px!important;
+  z-index:3;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:3px;
+  width:max-content;
+  min-width:0!important;
+  max-width:min(190px,calc(100% - 24px));
+  height:auto!important;
+  padding:9px 12px!important;
+  margin:0!important;
+  border:1px solid color-mix(in srgb,var(--vessel-color) 35%,white);
+  border-left:3px solid var(--vessel-color);
+  border-radius:10px;
+  background:#fffffffa;
+  box-shadow:0 4px 14px #173c5b18;
+  white-space:normal;
+  transform:none!important;
+  pointer-events:none;
+}
+.heart-canvas .vessel-score-callout span{font-size:9px!important;line-height:1.2;font-weight:900;letter-spacing:.6px}
+.heart-canvas .vessel-score-callout strong{font-size:19px!important;line-height:1.15!important;letter-spacing:-.3px;font-weight:800}
+.heart-canvas .vessel-score-callout small{font-size:8px!important;line-height:1.35}
+@media(max-width:560px){
+  .heart-canvas .vessel-score-callout{right:8px!important;bottom:8px!important;padding:7px 9px!important;max-width:135px}
+  .heart-canvas .vessel-score-callout strong{font-size:16px!important}
+}
