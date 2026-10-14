@@ -19,13 +19,6 @@ const vessels: Vessel[] = [
   { key: 'rca-pda', id: 'RCA', name: 'Posterior descending branch', branch: true, points: [[.31,-.24,.18],[.12,-.36,.22],[-.08,-.45,.18],[-.20,-.47,.12]] },
 ]
 const vesselColors: Record<ID, string> = { LAD: '#f04452', LCX: '#16a6d8', RCA: '#17a673' }
-const vesselAnchors: Record<ID, [number, number, number]> = {
-  LAD: [.16, .22, .52],
-  LCX: [-.36, .36, .40],
-  RCA: [.49, .27, .34],
-}
-
-
 function AnatomicalHeartModel() {
   const { scene } = useGLTF('/models/anatomical_heart_-_codominance.glb')
   const prepared = useMemo(() => {
