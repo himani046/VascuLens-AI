@@ -1,0 +1,69 @@
+{
+  "project": "VascuLens AI",
+  "dataset": {
+    "name": "Extension of Z-Alizadeh Sani",
+    "n_records": 303,
+    "n_features": 55,
+    "validation": "5-fold stratified cross-validation; random_state=42",
+    "note": "Exploratory internal validation only; single small dataset; not for clinical use."
+  },
+  "validation_note": "CV mean metrics. Threshold 0.5 is illustrative, not a clinical operating threshold. No external validation.",
+  "targets": {
+    "CAD": {
+      "selected_model": "RBF_SVM",
+      "roc_auc": 0.9292,
+      "roc_auc_sd": 0.0331,
+      "pr_auc": 0.9689,
+      "pr_auc_sd": 0.0146,
+      "sensitivity": 0.9304,
+      "specificity": 0.7471,
+      "balanced_accuracy": 0.8388,
+      "precision": 0.9013,
+      "f1": 0.9153,
+      "brier": 0.0941,
+      "threshold": 0.5
+    },
+    "LAD": {
+      "selected_model": "RandomForest",
+      "roc_auc": 0.8478,
+      "roc_auc_sd": 0.0658,
+      "pr_auc": 0.8846,
+      "pr_auc_sd": 0.047,
+      "sensitivity": 0.8648,
+      "specificity": 0.6978,
+      "balanced_accuracy": 0.7813,
+      "precision": 0.8042,
+      "f1": 0.8319,
+      "brier": 0.1694,
+      "threshold": 0.5
+    },
+    "LCX": {
+      "selected_model": "RandomForest",
+      "roc_auc": 0.737,
+      "roc_auc_sd": 0.1038,
+      "pr_auc": 0.6261,
+      "pr_auc_sd": 0.1118,
+      "sensitivity": 0.538,
+      "specificity": 0.7989,
+      "balanced_accuracy": 0.6685,
+      "precision": 0.6428,
+      "f1": 0.5835,
+      "brier": 0.2082,
+      "threshold": 0.5
+    },
+    "RCA": {
+      "selected_model": "XGBoost",
+      "roc_auc": 0.7289,
+      "roc_auc_sd": 0.0536,
+      "pr_auc": 0.6242,
+      "pr_auc_sd": 0.0815,
+      "sensitivity": 0.3858,
+      "specificity": 0.8839,
+      "balanced_accuracy": 0.6348,
+      "precision": 0.6859,
+      "f1": 0.4829,
+      "brier": 0.2014,
+      "threshold": 0.5
+    }
+  }
+}
